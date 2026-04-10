@@ -9,44 +9,44 @@ import {
 
 const MAX_POINTS = 40
 
-function MetricCard({ label, value, unit, color }) {
+function MetricCard({ label, value, unit, bg, labelColor, valColor, unitColor }) {
   return (
-    <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-      <p className="text-xs text-gray-400 mb-1">{label}</p>
-      <p className="text-2xl font-medium" style={{ color }}>
+    <div style={{ background: bg, borderRadius: 12, padding: '14px 16px', flex: 1 }}>
+      <p style={{ fontSize: 11, color: labelColor, margin: '0 0 4px' }}>{label}</p>
+      <p style={{ fontSize: 24, fontWeight: 500, color: valColor, margin: 0 }}>
         {value ?? '—'}
       </p>
-      <p className="text-xs text-gray-600 mt-1 font-mono">{unit}</p>
+      <p style={{ fontSize: 10, color: unitColor, marginTop: 3, fontFamily: 'monospace' }}>{unit}</p>
     </div>
   )
 }
 
-function LiveChart({ data, dataKey, color, domain }) {
+function LiveChart({ data, dataKey, color, bg, domain }) {
   return (
     <ResponsiveContainer width="100%" height={130}>
       <LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
         <XAxis dataKey="time" hide />
         <YAxis
           domain={domain}
-          tick={{ fill: '#6b7280', fontSize: 10 }}
+          tick={{ fill: '#a8693a', fontSize: 10 }}
           tickCount={3}
         />
         <Tooltip
           contentStyle={{
-            background: '#111827',
-            border: '1px solid #374151',
+            background: '#fff7ed',
+            border: '1px solid #fed7aa',
             borderRadius: 8,
             fontSize: 12,
           }}
-          labelStyle={{ color: '#9ca3af' }}
+          labelStyle={{ color: '#9a3412' }}
           itemStyle={{ color }}
         />
         <Line
           type="monotone"
           dataKey={dataKey}
           stroke={color}
-          strokeWidth={1.5}
+          strokeWidth={2}
           dot={false}
           isAnimationActive={false}
         />
@@ -111,7 +111,7 @@ export default function Dashboard() {
 
   function formatPzem(r) {
     return {
-      time: new Date(r.created_at).toLocaleTimeString(),
+      time:      new Date(r.created_at).toLocaleTimeString(),
       tension:   +r.tension,
       courant:   +r.courant,
       puissance: +r.puissance,
@@ -129,69 +129,61 @@ export default function Dashboard() {
   const lp = pzemData[pzemData.length - 1]
   const ls = sctData[sctData.length - 1]
 
+  const tabActive   = { background: '#f97316', color: '#fff', border: 'none', borderRadius: 10, padding: '8px 20px', fontSize: 13, fontWeight: 500, cursor: 'pointer' }
+  const tabInactive = { background: '#ffedd5', color: '#c2410c', border: 'none', borderRadius: 10, padding: '8px 20px', fontSize: 13, cursor: 'pointer' }
+  const chartCard   = { background: '#fff7ed', borderRadius: 14, padding: '14px 16px', border: '1px solid #fed7aa', marginBottom: 14 }
+
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6 max-w-4xl mx-auto">
+    <div style={{ minHeight: '100vh', background: '#fff7ed', padding: '28px 24px', maxWidth: 860, margin: '0 auto', fontFamily: 'sans-serif' }}>
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
         <div>
-          <p className="text-xs text-gray-500 font-mono mb-1">
+          <p style={{ fontSize: 11, color: '#ea580c', fontFamily: 'monospace', margin: '0 0 4px', letterSpacing: '0.05em' }}>
             ENETCOM · GII 2e année · PFA 2025–2026
           </p>
-          <h1 className="text-xl font-medium">
+          <h1 style={{ fontSize: 22, fontWeight: 500, color: '#7c2d12', margin: 0 }}>
             Réseau IoT géré par ESP32 via I2C
           </h1>
         </div>
-        <div className="flex items-center gap-2">
-          <span
-            className="w-2 h-2 rounded-full bg-emerald-400 transition-opacity duration-300"
-            style={{ opacity: liveTick ? 1 : 0.3 }}
-          />
-          <span className="text-xs text-gray-400 font-mono tracking-widest">LIVE</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#ffedd5', borderRadius: 20, padding: '6px 14px' }}>
+          <span style={{
+            width: 8, height: 8, borderRadius: '50%', background: '#22c55e', display: 'block',
+            opacity: liveTick ? 1 : 0.3, transition: 'opacity 0.3s'
+          }} />
+          <span style={{ fontSize: 11, color: '#c2410c', fontFamily: 'monospace', letterSpacing: '0.1em' }}>LIVE</span>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6 border-b border-gray-800 pb-3">
-        {[
-          { key: 'pzem', label: 'PZEM-004T v2.0' },
-          { key: 'sct',  label: 'SCT013 — 60A/1V' },
-        ].map(tab => (
-          <button
-            key={tab.key}
-            onClick={() => setPage(tab.key)}
-            className={`px-4 py-2 rounded-lg text-sm transition-all ${
-              page === tab.key
-                ? 'bg-gray-800 text-white'
-                : 'text-gray-500 hover:text-gray-300'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+        <button style={page === 'pzem' ? tabActive : tabInactive} onClick={() => setPage('pzem')}>
+          PZEM-004T v2.0
+        </button>
+        <button style={page === 'sct' ? tabActive : tabInactive} onClick={() => setPage('sct')}>
+          SCT013 — 60A/1V
+        </button>
       </div>
 
       {/* PZEM Page */}
       {page === 'pzem' && (
         <div>
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            <MetricCard label="Tension"   value={lp ? lp.tension.toFixed(1)   + ' V' : null} unit="Volts (V)"    color="#3b82f6" />
-            <MetricCard label="Courant"   value={lp ? lp.courant.toFixed(2)   + ' A' : null} unit="Ampères (A)"  color="#10b981" />
-            <MetricCard label="Puissance" value={lp ? Math.round(lp.puissance) + ' W' : null} unit="Watts (W)"    color="#f59e0b" />
+          <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+            <MetricCard label="Tension"   value={lp ? lp.tension.toFixed(1)    + ' V' : null} unit="Volts (V)"   bg="#ffedd5" labelColor="#c2410c" valColor="#7c2d12" unitColor="#f97316" />
+            <MetricCard label="Courant"   value={lp ? lp.courant.toFixed(3)    + ' A' : null} unit="Ampères (A)" bg="#fef2f2" labelColor="#b91c1c" valColor="#7f1d1d" unitColor="#ef4444" />
+            <MetricCard label="Puissance" value={lp ? Math.round(lp.puissance) + ' W' : null} unit="Watts (W)"   bg="#fdf2f8" labelColor="#be185d" valColor="#9d174d" unitColor="#ec4899" />
           </div>
-          <div className="space-y-4">
-            <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-              <p className="text-xs text-gray-400 mb-3">Tension (V)</p>
-              <LiveChart data={pzemData} dataKey="tension"   color="#3b82f6" domain={[200, 240]} />
-            </div>
-            <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-              <p className="text-xs text-gray-400 mb-3">Courant (A)</p>
-              <LiveChart data={pzemData} dataKey="courant"   color="#10b981" domain={[0, 10]} />
-            </div>
-            <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-              <p className="text-xs text-gray-400 mb-3">Puissance active (W)</p>
-              <LiveChart data={pzemData} dataKey="puissance" color="#f59e0b" domain={[0, 2000]} />
-            </div>
+          <div style={chartCard}>
+            <p style={{ fontSize: 12, color: '#c2410c', margin: '0 0 10px' }}>Tension (V)</p>
+            <LiveChart data={pzemData} dataKey="tension"   color="#f97316" domain={[200, 260]} />
+          </div>
+          <div style={chartCard}>
+            <p style={{ fontSize: 12, color: '#b91c1c', margin: '0 0 10px' }}>Courant (A)</p>
+            <LiveChart data={pzemData} dataKey="courant"   color="#ef4444" domain={[0, 10]} />
+          </div>
+          <div style={chartCard}>
+            <p style={{ fontSize: 12, color: '#be185d', margin: '0 0 10px' }}>Puissance active (W)</p>
+            <LiveChart data={pzemData} dataKey="puissance" color="#ec4899" domain={[0, 2000]} />
           </div>
         </div>
       )}
@@ -199,19 +191,17 @@ export default function Dashboard() {
       {/* SCT Page */}
       {page === 'sct' && (
         <div>
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            <MetricCard label="Courant"   value={ls ? ls.courant.toFixed(3)   + ' A' : null} unit="Ampères (A)" color="#8b5cf6" />
-            <MetricCard label="Puissance" value={ls ? Math.round(ls.puissance) + ' W' : null} unit="Watts (W)"   color="#ef4444" />
+          <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+            <MetricCard label="Courant"   value={ls ? ls.courant.toFixed(3)    + ' A' : null} unit="Ampères (A)" bg="#ffedd5" labelColor="#c2410c" valColor="#7c2d12" unitColor="#f97316" />
+            <MetricCard label="Puissance" value={ls ? Math.round(ls.puissance) + ' W' : null} unit="Watts (W)"   bg="#fef2f2" labelColor="#b91c1c" valColor="#7f1d1d" unitColor="#ef4444" />
           </div>
-          <div className="space-y-4">
-            <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-              <p className="text-xs text-gray-400 mb-3">Courant (A)</p>
-              <LiveChart data={sctData} dataKey="courant"   color="#8b5cf6" domain={[0, 2]} />
-            </div>
-            <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-              <p className="text-xs text-gray-400 mb-3">Puissance (W)</p>
-              <LiveChart data={sctData} dataKey="puissance" color="#ef4444" domain={[0, 500]} />
-            </div>
+          <div style={chartCard}>
+            <p style={{ fontSize: 12, color: '#c2410c', margin: '0 0 10px' }}>Courant (A)</p>
+            <LiveChart data={sctData} dataKey="courant"   color="#f97316" domain={[0, 2]} />
+          </div>
+          <div style={chartCard}>
+            <p style={{ fontSize: 12, color: '#b91c1c', margin: '0 0 10px' }}>Puissance (W)</p>
+            <LiveChart data={sctData} dataKey="puissance" color="#ef4444" domain={[0, 500]} />
           </div>
         </div>
       )}
