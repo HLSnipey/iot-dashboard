@@ -120,10 +120,9 @@ export default function Dashboard() {
 
   function formatSct(r) {
     return {
-      time: new Date(r.created_at).toLocaleTimeString(),
-      courant_max: +r.courant_max,
-      courant_rms: +r.courant_rms,
-      frequence:   +r.frequence,
+      time:      new Date(r.created_at).toLocaleTimeString(),
+      courant:   +r.courant,
+      puissance: +r.puissance,
     }
   }
 
@@ -200,15 +199,18 @@ export default function Dashboard() {
       {/* SCT Page */}
       {page === 'sct' && (
         <div>
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            <MetricCard label="Courant max" value={ls ? ls.courant_max.toFixed(2) + ' A' : null} unit="Ampères (A)" color="#ef4444" />
-            <MetricCard label="Courant RMS" value={ls ? ls.courant_rms.toFixed(2) + ' A' : null} unit="Ampères (A)" color="#8b5cf6" />
-            <MetricCard label="Fréquence"   value={ls ? ls.frequence.toFixed(2)   + ' Hz': null} unit="Hertz (Hz)"  color="#06b6d4" />
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <MetricCard label="Courant"   value={ls ? ls.courant.toFixed(3)   + ' A' : null} unit="Ampères (A)" color="#8b5cf6" />
+            <MetricCard label="Puissance" value={ls ? Math.round(ls.puissance) + ' W' : null} unit="Watts (W)"   color="#ef4444" />
           </div>
           <div className="space-y-4">
             <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-              <p className="text-xs text-gray-400 mb-3">Courant RMS (A)</p>
-              <LiveChart data={sctData} dataKey="courant_rms" color="#8b5cf6" domain={[0, 50]} />
+              <p className="text-xs text-gray-400 mb-3">Courant (A)</p>
+              <LiveChart data={sctData} dataKey="courant"   color="#8b5cf6" domain={[0, 2]} />
+            </div>
+            <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
+              <p className="text-xs text-gray-400 mb-3">Puissance (W)</p>
+              <LiveChart data={sctData} dataKey="puissance" color="#ef4444" domain={[0, 500]} />
             </div>
           </div>
         </div>
