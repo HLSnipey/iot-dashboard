@@ -143,7 +143,7 @@ export default function Dashboard() {
             ENETCOM · GII 2e année · PFA 2025–2026
           </p>
           <h1 style={{ fontSize: 22, fontWeight: 500, color: '#7c2d12', margin: 0 }}>
-            Réseau IoT géré par ESP32 via I2C
+            Réseau IoT géré par Raspberry PI5 via I2C
           </h1>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#ffedd5', borderRadius: 20, padding: '6px 14px' }}>
